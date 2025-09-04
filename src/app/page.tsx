@@ -1,8 +1,16 @@
+// 상단 import 부분에 ImageSlider를 추가합니다.
+import ImageSlider from '@/components/ImageSlider';
 import InsuranceCard from '@/components/InsuranceCard';
 import ConsultationForm from '@/components/ConsultationForm';
 
 export default function Home() {
-  // 기존 텍스트 데이터 대신 이미지 파일 경로를 넣습니다.
+  // 슬라이드에 사용할 이미지 경로들을 배열로 만듭니다.
+  const sliderImages = [
+    "/images/slider-1.jpg",
+    "/images/slider-2.jpg",
+    "/images/slider-3.jpg",
+  ];
+
   const cardImages = [
     "/images/card-image-1.jpg",
     "/images/card-image-2.jpg",
@@ -15,8 +23,8 @@ export default function Home() {
         {/* Hero Section */}
         <section className="text-center py-20 bg-blue-50">
           <div className="px-4 sm:px-6 md:px-8 max-w-4xl mx-auto">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-gray-800 leading-tight">
-              간병인보험, <br className="sm:hidden" />가족을 위한 보험
+            <h1 className="text-5xl sm:text-5xl lg:text-6xl font-extrabold text-gray-800 leading-tight">
+            간병인보험, <br />가족을 위한 보험
             </h1>
             <p className="text-base sm:text-xl text-gray-600 mt-4 max-w-2xl mx-auto leading-relaxed">
               예상치 못한 순간에도 안심할 수 있도록, <br className="sm:hidden" />보험이 당신의 일상을 지켜드립니다.
@@ -36,6 +44,13 @@ export default function Home() {
                 <InsuranceCard key={index} imageUrl={imageUrl} />
               ))}
             </div>
+          </div>
+        </section>
+
+        {/* Image Slider Section (새로 추가) */}
+        <section className="py-16">
+          <div className="container mx-auto px-6">
+            <ImageSlider images={sliderImages} />
           </div>
         </section>
 
