@@ -21,12 +21,12 @@ export default function Home() {
     <div className="bg-gray-100 min-h-screen">
       <main>
         {/* Hero Section */}
-        <section className="text-center py-20 bg-blue-50">
+        <section className="text-center py-20 bg-[#172858]">
           <div className="px-4 sm:px-6 md:px-8 max-w-4xl mx-auto">
-            <h1 className="text-5xl sm:text-5xl lg:text-6xl font-extrabold text-gray-800 leading-tight">
+            <h1 className="text-5xl sm:text-5xl lg:text-6xl font-extrabold text-[#f4f4f4] leading-tight">
             간병인보험, <br />가족을 위한 보험
             </h1>
-            <p className="text-base sm:text-xl text-gray-600 mt-4 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-base sm:text-xl text-[#f0f0f0] mt-4 max-w-2xl mx-auto leading-relaxed">
               예상치 못한 순간에도 안심할 수 있도록, <br className="sm:hidden" />보험이 당신의 일상을 지켜드립니다.
             </p>
           </div>

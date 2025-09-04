@@ -38,10 +38,10 @@ const ImageSlider: React.FC<ImageSliderProps> = ({ images }) => {
       loop={true}
       navigation
       pagination={{ clickable: true }}
-      autoplay={{
-        delay: 5000,
-        disableOnInteraction: false,
-      }}
+      // autoplay={{
+      //   delay: 5000,
+      //   disableOnInteraction: false,
+      // }}
       className="w-full rounded-lg"
       breakpoints={{
         768: {
