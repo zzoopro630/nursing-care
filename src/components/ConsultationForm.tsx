@@ -2,34 +2,51 @@
 
 import React, { useState } from 'react';
 import emailjs from '@emailjs/browser';
-import { useRouter } from 'next/navigation'; // next/navigation에서 useRouter를 import
+import { useRouter } from 'next/navigation';
 
 const ConsultationForm = () => {
-  const router = useRouter(); // useRouter 훅을 초기화합니다.
+  const router = useRouter();
   const [name, setName] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false); // 제출 중 상태 추가
+  // ✅ 1. state 변수를 8자리 숫자만 관리하도록 변경
+  const [lastEightDigits, setLastEightDigits] = useState(''); 
+  const [birthDate, setBirthDate] = useState('');
+  const [gender, setGender] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // ... (handlePhoneNumberChange 함수는 이전과 동일)
-  const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const rawValue = e.target.value.replace(/\D/g, '');
+  // ✅ 2. 8자리 숫자를 포맷팅하는 함수로 로직 변경
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value.replace(/\D/g, ''); // 숫자만 추출
+    const truncatedValue = rawValue.substring(0, 8); // 최대 8자리로 제한
+
     let formattedValue = '';
-    if (rawValue.length > 0) {
-      formattedValue = rawValue.substring(0, 3);
-      if (rawValue.length > 3) { formattedValue += '-' + rawValue.substring(3, 7); }
-      if (rawValue.length > 7) { formattedValue += '-' + rawValue.substring(7, 11); }
+    if (truncatedValue.length > 4) {
+      // 4자리 입력 후 자동으로 하이픈 추가
+      formattedValue = `${truncatedValue.substring(0, 4)}-${truncatedValue.substring(4)}`;
+    } else {
+      formattedValue = truncatedValue;
     }
-    setPhoneNumber(formattedValue);
+    setLastEightDigits(formattedValue);
+  };
+
+  const handleBirthDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value.replace(/\D/g, ''); // 숫자만 추출
+    const truncatedValue = rawValue.substring(0, 6); // 최대 6자리로 제한
+    setBirthDate(truncatedValue);
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsSubmitting(true); // 제출 시작 시 버튼 비활성화
+    setIsSubmitting(true);
+    
+    // 전송할 때는 '010-'와 8자리 숫자를 합쳐서 보냄
+    const fullPhoneNumber = `010-${lastEightDigits}`;
 
     const templateParams = {
       from_name: name,
       interest_item: '간병인보험',
-      contact_number: phoneNumber,
+      contact_number: fullPhoneNumber, // 완성된 전체 번호로 전송
+      birth_date: birthDate,
+      gender: gender,
     };
 
     const serviceID = 'service_gf7tr94';
@@ -38,14 +55,12 @@ const ConsultationForm = () => {
 
     emailjs.send(serviceID, templateID, templateParams, publicKey)
       .then((response) => {
-        console.log('SUCCESS!', response.status, response.text);
-        // ✅ 성공 시 alert 대신 /thank-you 페이지로 이동시킵니다.
         router.push('/thank-you');
       })
       .catch((err) => {
         console.log('FAILED...', err);
         alert('오류가 발생했습니다. 다시 시도해 주세요.');
-        setIsSubmitting(false); // 실패 시 버튼 다시 활성화
+        setIsSubmitting(false);
       });
   };
 
@@ -58,7 +73,7 @@ const ConsultationForm = () => {
   상담하세요
 </h2>
         <form className="bg-gray-50 p-8 rounded-lg shadow-md" onSubmit={handleSubmit}>
-          {/* ... (이름, 관심항목, 연락처 input은 이전과 동일) ... */}
+          {/* ... (이름, 관심항목 input은 이전과 동일) ... */}
           <div className="mb-4">
             <label htmlFor="name" className="block text-gray-700 font-bold mb-2">이름</label>
             <input type="text" id="name" className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="홍길동" value={name} onChange={(e) => setName(e.target.value)} required />
@@ -67,18 +82,73 @@ const ConsultationForm = () => {
             <label htmlFor="interest" className="block text-gray-700 font-bold mb-2">관심항목</label>
             <input type="text" id="interest" className="w-full px-3 py-2 border rounded-lg bg-gray-200 text-gray-600 cursor-not-allowed" value="간병인보험" readOnly />
           </div>
+          <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="birthDate" className="block text-gray-700 font-bold mb-2">생년월일</label>
+              <input 
+                type="text" 
+                id="birthDate" 
+                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                placeholder="950315 (6자리 숫자)"
+                value={birthDate}
+                onChange={handleBirthDateChange}
+                maxLength={6}
+                required 
+              />
+            </div>
+            <div>
+              <label className="block text-gray-700 font-bold mb-2">성별</label>
+              <div className="flex items-center space-x-4 h-10">
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    name="gender"
+                    value="남자"
+                    checked={gender === '남자'}
+                    onChange={(e) => setGender(e.target.value)}
+                    className="mr-2"
+                    required
+                  />
+                  남자
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    name="gender"
+                    value="여자"
+                    checked={gender === '여자'}
+                    onChange={(e) => setGender(e.target.value)}
+                    className="mr-2"
+                    required
+                  />
+                  여자
+                </label>
+              </div>
+            </div>
+          </div>
+
+          {/* ✅ 3. 연락처 입력란의 HTML 구조 변경 */}
           <div className="mb-6">
             <label htmlFor="phone" className="block text-gray-700 font-bold mb-2">연락처</label>
-            <input type="tel" id="phone" className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="010-1234-5678" value={phoneNumber} onChange={handlePhoneNumberChange} maxLength={13} required />
+            <div className="relative">
+              <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                010-
+              </span>
+              <input 
+                type="tel"
+                id="phone" 
+                className="w-full pl-12 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                placeholder="1234-5678"
+                value={lastEightDigits}
+                onChange={handlePhoneChange}
+                maxLength={9} // 1234-5678 (9자리)
+                required 
+              />
+            </div>
           </div>
           
           <div className="text-center">
-            {/* 버튼에 isSubmitting 상태를 연결하여 중복 클릭 방지 */}
-            <button 
-              type="submit" 
-              className="w-full bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors duration-300 disabled:bg-gray-400"
-              disabled={isSubmitting}
-            >
+            <button type="submit" className="w-full bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors duration-300 disabled:bg-gray-400" disabled={isSubmitting}>
               {isSubmitting ? '신청하는 중...' : '상담 신청하기'}
             </button>
           </div>
