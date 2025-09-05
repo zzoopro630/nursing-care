@@ -1,17 +1,54 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import emailjs from '@emailjs/browser';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 const ConsultationForm = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [name, setName] = useState('');
   // ✅ 1. state 변수를 8자리 숫자만 관리하도록 변경
   const [lastEightDigits, setLastEightDigits] = useState(''); 
   const [birthDate, setBirthDate] = useState('');
   const [gender, setGender] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [referrerInfo, setReferrerInfo] = useState('');
+
+  // 이전 페이지 정보 수집
+  useEffect(() => {
+    const collectReferrerInfo = () => {
+      let info = '';
+      
+      // URL 파라미터 확인
+      const utm_source = searchParams.get('utm_source');
+      const utm_medium = searchParams.get('utm_medium');
+      const utm_campaign = searchParams.get('utm_campaign');
+      const source = searchParams.get('source');
+      
+      if (utm_source || utm_medium || utm_campaign || source) {
+        info += `UTM정보: ${utm_source ? `source=${utm_source}` : ''} ${utm_medium ? `medium=${utm_medium}` : ''} ${utm_campaign ? `campaign=${utm_campaign}` : ''} ${source ? `source=${source}` : ''}`.trim();
+      }
+      
+      // 레퍼러 정보 확인
+      if (document.referrer) {
+        info += info ? ` | 이전페이지: ${document.referrer}` : `이전페이지: ${document.referrer}`;
+      }
+      
+      // 사용자 에이전트 정보
+      if (navigator.userAgent) {
+        const userAgent = navigator.userAgent;
+        // 간단한 브라우저/디바이스 정보만 추출
+        const isMobile = /Mobile|Android|iPhone|iPad/.test(userAgent);
+        const deviceType = isMobile ? '모바일' : '데스크탑';
+        info += info ? ` | 접속환경: ${deviceType}` : `접속환경: ${deviceType}`;
+      }
+      
+      setReferrerInfo(info);
+    };
+
+    collectReferrerInfo();
+  }, [searchParams]);
 
   // ✅ 2. 8자리 숫자를 포맷팅하는 함수로 로직 변경
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -47,6 +84,7 @@ const ConsultationForm = () => {
       contact_number: fullPhoneNumber, // 완성된 전체 번호로 전송
       birth_date: birthDate,
       gender: gender,
+      referrer_info: referrerInfo || '직접 접속',
     };
 
     const serviceID = 'service_gf7tr94';
@@ -73,6 +111,8 @@ const ConsultationForm = () => {
   상담하세요
 </h2>
         <form className="bg-gray-50 p-8 rounded-lg shadow-md" onSubmit={handleSubmit}>
+          {/* Hidden field for referrer information */}
+          <input type="hidden" value={referrerInfo} />
           {/* ... (이름, 관심항목 input은 이전과 동일) ... */}
           <div className="mb-4">
             <label htmlFor="name" className="block text-gray-700 font-bold mb-2">이름</label>
