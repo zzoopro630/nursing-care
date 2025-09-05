@@ -8,8 +8,8 @@ const ThankYouPage = () => {
           감사합니다.
         </h1>
         <p className="text-base sm:text-lg text-gray-600 max-w-md">
-          신청이 성공적으로 접수되었습니다. <br />
-          빠른 시간 내에 해피콜을 드릴 예정입니다.
+          상담신청이 성공적으로 접수되었습니다. <br />
+          빠른 시간 안에 전문상담원이 해피콜을 드리겠습니다.
         </p>
       </div>
     </main>
