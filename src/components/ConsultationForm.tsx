@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import emailjs from '@emailjs/browser';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-const ConsultationForm = () => {
+const ConsultationFormInner = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [name, setName] = useState('');
@@ -195,6 +195,27 @@ const ConsultationForm = () => {
         </form>
       </div>
     </section>
+  );
+};
+
+const ConsultationForm = () => {
+  return (
+    <Suspense fallback={
+      <section className="bg-white py-12">
+        <div className="container mx-auto px-6 max-w-2xl">
+          <h2 className="text-4xl font-black text-center text-gray-800 mb-8">
+            지금 바로 <br />
+            간병인보험 전문가와 <br />
+            상담하세요
+          </h2>
+          <div className="bg-gray-50 p-8 rounded-lg shadow-md">
+            <div className="text-center text-gray-600">로딩 중...</div>
+          </div>
+        </div>
+      </section>
+    }>
+      <ConsultationFormInner />
+    </Suspense>
   );
 };
 
